@@ -12,8 +12,8 @@
 
 #include "../RMIBus.hpp"
 #include "../Utility/PS2.hpp"
-#include "../Utility/ButtonDevice.hpp"
 #include "../Utility/Configuration.hpp"
+#include <VoodooTrackpointMessages.h>
 #include <IOKit/IOWorkLoop.h>
 #include <IOKit/IOCommandGate.h>
 
@@ -84,19 +84,27 @@ public:
     bool attach(IOService *provider) override;
     bool start(IOService *provider) override;
     void stop(IOService *provider) override;
+    bool handleOpen(IOService *forClient, IOOptionBits options, void *arg) override;
+    void handleClose(IOService *forClient, IOOptionBits options) override;
 //    void free() override;
     IOReturn message(UInt32 type, IOService *provider, void *argument = 0) override;
     
 private:
     RMIBus *rmiBus;
-    ButtonDevice *buttonDevice;
     IOWorkLoop *work_loop;
     IOCommandGate *command_gate;
+    
+    IOService *voodooTrackpointInstance {nullptr};
+    RelativePointerEvent relativeEvent {};
+    ScrollWheelEvent scrollEvent {};
     
     unsigned int trackstickMult;
     unsigned int trackstickScrollXMult;
     unsigned int trackstickScrollYMult;
     unsigned int trackstickDeadzone;
+    
+    bool isScrolling;
+    bool middlePressed;
     
     // ps2
     unsigned int flags, cmdcnt;
@@ -115,15 +123,12 @@ private:
 
     IOWorkLoop* getWorkLoop();
     
-    bool publishButtons();
-    void unpublishButtons();
-    
     int rmi_f03_pt_write (unsigned char val);
     int ps2DoSendbyteGated(u8 byte, uint64_t timeout);
     int ps2CommandGated(u8 *param, unsigned int *command);
     int ps2Command(u8 *param, unsigned int command);
     // TODO: Move to math file as long as with abs in rmi_driver.h
-    int signum (unsigned int value);
+    int signum (int value);
     
     void handlePacketGated(u8 packet);
 };

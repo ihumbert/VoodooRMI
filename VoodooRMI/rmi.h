@@ -12,7 +12,35 @@
 
 #include <IOKit/IOService.h>
 
-class RMIBus;
+// macOS kernel/math has absolute value in it. It's only for doubles though
+#define abs(x) ((x < 0) ? (-x) : (x))
+
+#define IOLogError(arg...) IOLog("Error: " arg)
+
+#ifdef DEBUG
+#define IOLogDebug(arg...) IOLog("Debug: " arg)
+#else
+#define IOLogDebug(arg...)
+#endif // DEBUG
+
+// Message types defined by ApplePS2Keyboard
+enum {
+    // from keyboard to mouse/touchpad
+    kKeyboardSetTouchStatus = iokit_vendor_specific_msg(100),   // set disable/enable touchpad (data is bool*)
+    kKeyboardGetTouchStatus = iokit_vendor_specific_msg(101),   // get disable/enable touchpad (data is bool*)
+    kKeyboardKeyPressTime = iokit_vendor_specific_msg(110)      // notify of timestamp a non-modifier key was pressed (data is uint64_t*)
+};
+
+// RMI message types
+enum {
+    kHandleRMIAttention = iokit_vendor_specific_msg(2046),
+    kHandleRMIClickpadSet = iokit_vendor_specific_msg(2047),
+    kHandleRMISuspend = iokit_vendor_specific_msg(2048),
+    kHandleRMIResume = iokit_vendor_specific_msg(2049),
+    kHandleRMITrackpoint = iokit_vendor_specific_msg(2050),
+    kHandleRMITrackpointButton = iokit_vendor_specific_msg(2051),
+    kHandleRMIInputReport = iokit_vendor_specific_msg(2052)
+};
 
 /*
  * The interrupt source count in the function descriptor can represent up to
@@ -63,7 +91,6 @@ struct rmi_function_descriptor {
 struct rmi_function {
     int size;
     struct rmi_function_descriptor fd;
-    RMIBus *dev;
     
     unsigned int num_of_irqs;
     int irq[RMI_FN_MAX_IRQS];
@@ -222,8 +249,6 @@ struct rmi_2d_sensor_platform_data {
 };
 
 struct rmi_driver_data {
-    RMIBus *rmi_dev;
-    
     rmi_function *f01_container;
     rmi_function *f34_container;
     bool bootloader_mode;
@@ -245,20 +270,6 @@ struct rmi_driver_data {
     
     bool enabled;
     IOLock *enabled_mutex;
-    
-    rmi4_attn_data attn_data;
-    
-    struct {
-        union {
-            struct __kfifo          kfifo;
-            struct rmi4_attn_data   *type;
-            const  rmi4_attn_data   *const_type;
-            char                    (*rectype)[0];
-            struct rmi4_attn_data   *ptr;
-            struct rmi4_attn_data const *ptr_const;
-        };
-        rmi4_attn_data buf[16];
-    } attn_fifo;
 };
 
 #endif /* rmi_h */
