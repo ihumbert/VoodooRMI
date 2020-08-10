@@ -14,6 +14,9 @@ This driver communicates over SMBus or I2C.
 * I2C Communication
 
 ## How do I know if my device is compatible?
+
+VoodooRMI is not likely to work on devices which have Ivy Bridge CPUs or older. Refer to [issue #33](https://github.com/VoodooSMBus/VoodooRMI/issues/33#issuecomment-667596831)
+
 **SMBus**  
 
 Windows:
@@ -56,7 +59,7 @@ Linux:
 
 | Name | Main function |
 |---|---|
-| `SYNA0000` | unknown |
+| `SYNA0000` | F11 |
 | `SYNA2393` | unknown |
 | `SYNA2B2C` | unknown |
 | `SYNA2B31` | F12 |
