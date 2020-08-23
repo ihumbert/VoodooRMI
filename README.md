@@ -32,12 +32,17 @@ Linux:
 
 **I2C**
 
+macOS:
+* If you already have VoodooI2CHID installed, check folllowing values in IORegistry
+  * `VoodooI2CHIDDevice` has `HIDDescriptor` containing `VendorID` `0x6cb`, or
+  * Parent device of `VoodooI2CHIDDevice` has `name` containing `SYN` or `SYNA`
+
 Windows:
 * Check for `HID-compliant touch pad` in device manager
-  * In properties, verify `location` is `on I2C HID Device` in `General` and `Hardware Ids` contains `SYNA` in `Details`
+  * In properties, verify `General` - `location` is `on I2C HID Device`  and `Details` - `Hardware Ids` contains `VID_06CB` (or `SYN`, `SYNA`)
 
 Linux:
-* Check for the presence of `i2c-SYNA` in `dmesg`.
+* Check for the presence of `i2c-SYN` in `dmesg`.
 * Get `i2c-tools` from your package manager, and use the `i2cdetect` tool to see if there are any devices at address 0x2c for any bus that isn't SMBus. If you see it under SMBus, I'd use SMBus as the trackpad seemingly operates better under SMBus!
 
 ## Requirements
@@ -59,9 +64,10 @@ Linux:
 
 | Name | Main function |
 |---|---|
+| `SYN1B7F` | F12 |
 | `SYNA0000` | F11 |
 | `SYNA2393` | unknown |
-| `SYNA2B2C` | unknown |
+| `SYNA2B2C` | F12 |
 | `SYNA2B31` | F12 |
 | `SYNA2B33` | F11 |
 | `SYNA2B34` | unknown |
